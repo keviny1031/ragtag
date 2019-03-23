@@ -23,15 +23,16 @@ CHARRAD = 22
 angle = 0
 ang1 = pi/4
 ang2 = 3 * pi / 4
-launchSpeed = 5
-maxJumps = 2
+launchSpeed = 15
+maxJumps = 4
 curJumps = maxJumps
 onGround = True
-GRAVITY = 1
+GRAVITY = 0.6
 xSpeed = 0
 ySpeed = 0
 xPos = 0
 yPos = 720 - CHARRAD
+sprite = transform.scale(image.load("main1.png"), (40,40))
 ##################
 
 def rot_center(image, angle):
@@ -50,9 +51,11 @@ def jump():
     global ySpeed
     global xSpeed
     if curJumps > 0:
+        ySpeed = 0
+        xSpeed = 0
         onGround = False
         curJumps -= 1
-        ySpeed -= launchSpeed * 10 * round(sin(angle + (pi / 2)), 10) #Minus for PyGame heights being inverted
+        ySpeed -= launchSpeed * round(sin(angle + (pi / 2)), 10) #Minus for PyGame heights being inverted
         xSpeed += launchSpeed * round(cos(angle + (pi / 2)), 10)#Rounds to avoid a pi decimal error
 
 
@@ -80,13 +83,13 @@ def game():
         print(xPos, yPos)
         keys = key.get_pressed()
         if keys[K_LEFT]:
-            angle += 0.01
-            ang1 += 0.01
-            ang2 += 0.01
+            angle += 0.04
+            ang1 += 0.04
+            ang2 += 0.04
         elif keys[K_RIGHT]:
-            angle -= 0.01
-            ang1 -= 0.01
-            ang2 -= 0.01
+            angle -= 0.04
+            ang1 -= 0.04
+            ang2 -= 0.04
         
         xPos += xSpeed
         yPos += ySpeed
@@ -104,7 +107,20 @@ def game():
             ySpeed += GRAVITY
 
         ###########################
-        
+        screen.fill((0, 0, 0))
+        #Hitbox    
+        draw.circle(screen, (0,0,0), (int(xPos), int(yPos)), 22, 1)
+
+        #Points of arc
+        draw.circle(screen,(255,0,0),(int(xPos + (22 * cos(ang1))), int(yPos - (22 * sin(ang1)))), 3, 0)
+        draw.circle(screen,(255,0,0),(int(xPos + (22 * cos(ang2))), int(yPos - (22 * sin(ang2)))), 3, 0)
+
+        #Sprite
+        screen.blit(rot_center(sprite, degrees(angle)), (xPos - 20, yPos - 22))
+
+
+
+        display.flip()
     
 def refreshJumps():
     global maxJumps
