@@ -23,11 +23,11 @@ CHARRAD = 22
 angle = 0
 ang1 = pi/4
 ang2 = 3 * pi / 4
-launchSpeed = 15
+launchSpeed = 11
 maxJumps = 4
 curJumps = maxJumps
 onGround = True
-GRAVITY = 0.6
+GRAVITY = 0.38
 xSpeed = 0
 ySpeed = 0
 xPos = 0
@@ -51,7 +51,8 @@ def jump():
     global ySpeed
     global xSpeed
     if curJumps > 0:
-        ySpeed = 0
+        if round(sin(angle + (pi / 2)), 10) > 0:
+            ySpeed = 0
         xSpeed = 0
         onGround = False
         curJumps -= 1
@@ -83,13 +84,13 @@ def game():
         print(xPos, yPos)
         keys = key.get_pressed()
         if keys[K_LEFT]:
-            angle += 0.04
-            ang1 += 0.04
-            ang2 += 0.04
+            angle += 0.05
+            ang1 += 0.05
+            ang2 += 0.05
         elif keys[K_RIGHT]:
-            angle -= 0.04
-            ang1 -= 0.04
-            ang2 -= 0.04
+            angle -= 0.05
+            ang1 -= 0.05
+            ang2 -= 0.05
         
         xPos += xSpeed
         yPos += ySpeed
