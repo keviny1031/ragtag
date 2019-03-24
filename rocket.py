@@ -5,15 +5,19 @@ class Rocket:
     xSpeed = ySpeed = 0
     xPos = 300
     yPos = 698
-    onGround = True
+    onGround = False
     maxJumps = curJumps = 4
     angle = 0
     ang1 = pi/4
     ang2 = 3 * (pi/4)
-    launchSpeed = 11
+    launchSpeed = 13.5
 
     def changeSpeed(launchSpeed):
         self.launchSpeed = launchSpeed
+
+    def setPos(self, x, y):
+        self.xPos = x
+        self.yPos = y
     
     def jump(self):
         if self.curJumps > 0:
