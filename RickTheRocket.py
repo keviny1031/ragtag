@@ -9,8 +9,7 @@ from math import *
 #Math
 from random import *
 #Random
-from rocket import *
-#Rocket
+from Rocket import *
 #############
 
 levels = []
@@ -24,20 +23,63 @@ with open("levels.txt", "r") as file:
         else:
             levels.append(level)
             level = []
-
 ###INITIALIZING###
 init()
-size=(1000,700)
+size=(960,720)
 screen=display.set_mode(size)
 fps=time.Clock()
 font = font.SysFont('Arial', 30)
 display.set_caption("Rick The Rocket")
 CHARRAD = 22
+curLevel = 0
+level = 1
+launchSpeed = 11
 GRAVITY = 0.38
 sprite = transform.scale(image.load("main1.png"), (40,40))
-background = image.load("resizedBack.jpg")
-level = 1
+flagImg = transform.scale(image.load("flag.png"), (100, 100))
+buttonImg0 = transform.scale(image.load("buttonImg0.png"), (100,20))
+buttonImg1 = transform.scale(image.load("buttonImg1.png"), (100,20))
+buttonImg2 = transform.scale(image.load("buttonImg2.png"), (100,20))
+buttonImg3 = transform.scale(image.load("buttonImg3.png"), (100,20))
+buttonAnim = [buttonImg0, buttonImg1, buttonImg2, buttonImg3, buttonImg2, buttonImg1, buttonImg0]
+jumpUpImg = transform.scale(image.load("jumpUp.png"), (20,20))
+speedUpImg = transform.scale(image.load("speedUp.png"), (20,20))
 ##################
+
+class doorButton:
+    def __init__(self, bX, bY, dX, dY, speed):
+        self.bX = bX
+        self.bY = bY
+        self.dX = dX
+        self.dY = dY
+        self.door = Rect(self.dX, self.dY, 100, 100)
+        self.but = Rect(self.dX, self.dY, 100, 20)
+        self.speed = speed
+        self.image = buttonImg0
+        
+    def pressed(self, rocket):
+        if rocket.speed() >= speed:
+            del self.door
+
+    def getDoor(self):
+        return self.door
+    def getBut(self):
+        return self.but
+class powerup:
+    def __init__(xPos, yPos, ability):
+        hitbox = Rect(xPos, yPos, 20, 20)
+        self.ability = ability
+        if ability == "jumpUp":
+            self.img = jumpUpImg
+        elif ability == "speedUp":
+            self.img = speedUpImg
+
+    def collected(rocket):
+        if ability == "jumpUp":
+            rocket.jumpsUp()
+        elif ability == "launchUp":
+            rocket.changeSpeed(rocket.getLaunchSpeed())
+    
 
 def rot_center(image, angle):
     """rotate an image while keeping its center and size"""
@@ -51,6 +93,7 @@ def rot_center(image, angle):
 
 
 def game(level):
+    print(levels)
     running = True
     fps = time.Clock()
     rick = Rocket()
@@ -58,6 +101,7 @@ def game(level):
     buttonVals = floors[-1]
     floors.remove(floors[-1])
     walls = []
+    but = False
     for l in range(len(floors)):
         for i in range(10):
             layer = floors[l][i]
@@ -67,6 +111,18 @@ def game(level):
                 flag = Rect(i * 100, l * 100 - 300, 100, 100)
             if layer == "@":
                 walls.append(Rect(i * 100, l * 100 - 300, 100, 100))
+            if layer == "B":
+                
+                but = True
+                bx = i * 100
+                by = l * 100 - 300
+            if layer == "D":
+                dX = i * 100
+                dY = i * 100 - 300
+
+    if but:
+        button = doorButton(bx, by, dX, dY, buttonVals) 
+            
     while running:
         for evnt in event.get():
             if evnt.type == QUIT:
@@ -74,8 +130,6 @@ def game(level):
             elif evnt.type == KEYDOWN:
                 if evnt.key == K_SPACE:
                     rick.jump()
-
-        screen.blit(background,(0,-300))
         
         keys = key.get_pressed()
         if keys[K_LEFT]:
@@ -98,9 +152,9 @@ def game(level):
         else:
             rick.ySpeed += GRAVITY
             
-        screen.blit(background,(0,-300))
-        ###########################
         
+        ###########################
+        screen.fill((0, 0, 0))
         #Hitbox    
         draw.circle(screen, (0,0,0), (int(rick.xPos), int(rick.yPos)), 22, 1)
 
@@ -110,7 +164,11 @@ def game(level):
 
         for r in walls:
             draw.rect(screen, (255, 0, 0), r)
-        draw.rect(screen, (255, 255, 255), flag)
+        screen.blit(flagImg, flag)
+        if but:
+            screen.blit(button.image, button.getBut())
+            draw.rect(screen, (200, 0, 0), button.getDoor())
+            
         #Sprite
         screen.blit(rot_center(sprite, degrees(rick.angle)), (rick.xPos - 20, rick.yPos - 22))
         fps.tick(80)
@@ -128,11 +186,9 @@ while page != "quit":
     if page == "game":
         page = game(level)
         if page == "game":
-            if level < 6:
-                level += 1
-            else:
-                print("good job bud")
-                page = "quit"
-                break
+            level += 1
+
+    
+
 
 quit()
