@@ -10,6 +10,8 @@ from math import *
 from random import *
 #Random
 from Rocket import *
+
+#from Collide import *
 #############
 
 
@@ -21,6 +23,7 @@ fps=time.Clock()
 font = font.SysFont('Arial', 30)
 display.set_caption("Rick The Rocket")
 CHARRAD = 22
+WHITE = (255,255,255)
 
 launchSpeed = 11
 GRAVITY = 0.38
@@ -28,6 +31,11 @@ sprite = transform.scale(image.load("main1.png"), (40,40))
 buttonImg = transform.scale(image.load("buttonImg.png"), (60,20))
 jumpUpImg = transform.scale(image.load("jumpUp.png"), (20,20))
 speedUpImg = transform.scale(image.load("speedUp.png"), (20,20))
+
+#WALLS
+
+wallR = Rect(940,0,20,720)
+wallL = Rect(0,0,20,720)
 ##################
 
 class doorButton:
@@ -55,7 +63,7 @@ class powerup:
         if ability == "jumpUp":
             rocket.jumpsUp()
         elif ability == "launchUp":
-            rocket.changeSpeed(rocket.launchSpeed())
+            rocket.changeSpeed(rocket.getLaunchSpeed())
     
 
 def rot_center(image, angle):
@@ -66,6 +74,18 @@ def rot_center(image, angle):
     rot_rect.center = rot_image.get_rect().center
     rot_image = rot_image.subsurface(rot_rect).copy()
     return rot_image
+
+def collision(nibba):
+    global wallR, WallL
+    if nibba.getCentreX() + nibba.getRadius() >= wallR[0] + wallR[2] - 1:
+        bounce(nibba)
+
+    if nibba.getCentreX() - nibba.getRadius() <= wallL[0] + wallL[2] + 1:
+        bounce(nibba)
+              
+def bounce(nibba):
+    xSpeed = nibba.getxSpeed()*-1
+    nibba.setxSpeed(xSpeed)
 
 
 
@@ -88,6 +108,8 @@ def game():
         
         rick.xPos += rick.xSpeed
         rick.yPos += rick.ySpeed
+        collision(rick)
+        print(rick.getCentreX())
         
         if rick.yPos >= 700 - CHARRAD:
             rick.onGround = True
@@ -114,7 +136,9 @@ def game():
         #Sprite
         screen.blit(rot_center(sprite, degrees(rick.angle)), (rick.xPos - 20, rick.yPos - 22))
 
-
+        #Wall
+        draw.rect(screen, WHITE, wallR)
+        draw.rect(screen, WHITE, wallL)
         fps.tick(80)
         display.flip()
     
