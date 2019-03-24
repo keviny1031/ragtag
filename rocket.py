@@ -17,7 +17,7 @@ class Rocket:
     
     def jump(self):
         if self.curJumps > 0:
-            if round(sin(angle + (pi / 2)), 10) > 0:
+            if round(sin(self.angle + (pi / 2)), 10) > 0:
                 self.ySpeed = 0
             self.xSpeed = 0
             self.onGround = False
