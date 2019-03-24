@@ -20,20 +20,50 @@ fps=time.Clock()
 font = font.SysFont('Arial', 30)
 display.set_caption("Rick The Rocket")
 CHARRAD = 22
-angle = 0
-ang1 = pi/4
-ang2 = 3 * pi / 4
+
 launchSpeed = 11
-maxJumps = 4
-curJumps = maxJumps
-onGround = True
 GRAVITY = 0.38
-xSpeed = 0
-ySpeed = 0
-xPos = 0
-yPos = 720 - CHARRAD
 sprite = transform.scale(image.load("main1.png"), (40,40))
 ##################
+
+class Rocket:
+    
+    xSpeed = ySpeed = 0
+    xPos = 300
+    yPos = 698
+    onGround = True
+    maxJumps = curJumps = 4
+    angle = 0
+    ang1 = pi/4
+    ang2 = 3 * (pi/4)
+    launchSpeed = 11
+
+    def changeSpeed(launchSpeed):
+        self.launchSpeed = launchSpeed
+    
+    def jump(self):
+        if self.curJumps > 0:
+            if round(sin(self.angle + (pi / 2)), 10) > 0:
+                self.ySpeed = 0
+            self.xSpeed = 0
+            self.onGround = False
+            self.curJumps -= 1
+            self.ySpeed -= self.launchSpeed * round(sin(self.angle + (pi / 2)), 10) #Minus for PyGame heights being inverted
+            self.xSpeed += self.launchSpeed * round(cos(self.angle + (pi / 2)), 10)#R 
+            
+    def rotR(self):
+        self.angle -= 0.05
+        self.ang1 -= 0.05
+        self.ang2 -= 0.05
+    def rotL(self):
+        self.angle += 0.05
+        self.ang1 += 0.05
+        self.ang2 += 0.05
+    def refreshJumps(self):
+        self.curJumps = self.maxJumps
+    
+
+    
 
 def rot_center(image, angle):
     """rotate an image while keeping its center and size"""
@@ -44,90 +74,57 @@ def rot_center(image, angle):
     rot_image = rot_image.subsurface(rot_rect).copy()
     return rot_image
 
-def jump():
-    #Jumps based on the current angle of the rocket
-    global onGround
-    global curJumps
-    global ySpeed
-    global xSpeed
-    if curJumps > 0:
-        if round(sin(angle + (pi / 2)), 10) > 0:
-            ySpeed = 0
-        xSpeed = 0
-        onGround = False
-        curJumps -= 1
-        ySpeed -= launchSpeed * round(sin(angle + (pi / 2)), 10) #Minus for PyGame heights being inverted
-        xSpeed += launchSpeed * round(cos(angle + (pi / 2)), 10)#Rounds to avoid a pi decimal error
-
 
 
 def game():
-    global xPos
-    global yPos
-    global xSpeed
-    global ySpeed
-    global onGround
-    global launchSpeed
-    global angle
-    global ang1
-    global ang2
     running = True
     fps = time.Clock()
-    
+    rick = Rocket()
     while running:
         for evnt in event.get():
             if evnt.type == QUIT:
                 return "quit"
             if evnt.type == KEYDOWN:
                 if evnt.key == K_SPACE:
-                    jump()
-        print(xPos, yPos)
+                    rick.jump()
         keys = key.get_pressed()
         if keys[K_LEFT]:
-            angle += 0.05
-            ang1 += 0.05
-            ang2 += 0.05
+            rick.rotL()
         elif keys[K_RIGHT]:
-            angle -= 0.05
-            ang1 -= 0.05
-            ang2 -= 0.05
+            rick.rotR()
         
-        xPos += xSpeed
-        yPos += ySpeed
+        rick.xPos += rick.xSpeed
+        rick.yPos += rick.ySpeed
         
-        if yPos >= 700 - CHARRAD:
-            onGround = True
-            ySpeed = 0
-            yPos = 700 - CHARRAD
+        if rick.yPos >= 700 - CHARRAD:
+            rick.onGround = True
+            rick.ySpeed = 0
+            rick.yPos = 700 - CHARRAD
             
-        if onGround:
-            refreshJumps()
-            xSpeed = 0
-            ySpeed = 0
+        if rick.onGround:
+            rick.refreshJumps()
+            rick.xSpeed = 0
+            rick.ySpeed = 0
         else:
-            ySpeed += GRAVITY
+            rick.ySpeed += GRAVITY
 
         ###########################
         screen.fill((0, 0, 0))
         #Hitbox    
-        draw.circle(screen, (0,0,0), (int(xPos), int(yPos)), 22, 1)
+        draw.circle(screen, (0,0,0), (int(rick.xPos), int(rick.yPos)), 22, 1)
 
         #Points of arc
-        draw.circle(screen,(255,0,0),(int(xPos + (22 * cos(ang1))), int(yPos - (22 * sin(ang1)))), 3, 0)
-        draw.circle(screen,(255,0,0),(int(xPos + (22 * cos(ang2))), int(yPos - (22 * sin(ang2)))), 3, 0)
+        draw.circle(screen,(255,0,0),(int(rick.xPos + (22 * cos(rick.ang1))), int(rick.yPos - (22 * sin(rick.ang1)))), 3, 0)
+        draw.circle(screen,(255,0,0),(int(rick.xPos + (22 * cos(rick.ang2))), int(rick.yPos - (22 * sin(rick.ang2)))), 3, 0)
 
         #Sprite
-        screen.blit(rot_center(sprite, degrees(angle)), (xPos - 20, yPos - 22))
+        screen.blit(rot_center(sprite, degrees(rick.angle)), (rick.xPos - 20, rick.yPos - 22))
 
 
-
+        fps.tick(80)
         display.flip()
     
-def refreshJumps():
-    global maxJumps
-    global curJumps
-    curJumps = maxJumps
-    
+
 
 page = "game"
 while page != "quit":
