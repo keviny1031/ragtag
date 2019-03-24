@@ -19,7 +19,6 @@ with open("levels.txt", "r") as file:
     lines = file.read().splitlines()
     level = []
     for line in lines:
-        print(line)
         if line.count("#") == 0:
             level.append(line)
         else:
@@ -36,6 +35,7 @@ display.set_caption("Rick The Rocket")
 CHARRAD = 22
 GRAVITY = 0.38
 sprite = transform.scale(image.load("main1.png"), (40,40))
+background = image.load("resizedBack.jpg")
 level = 1
 ##################
 
@@ -74,6 +74,8 @@ def game(level):
             elif evnt.type == KEYDOWN:
                 if evnt.key == K_SPACE:
                     rick.jump()
+
+        screen.blit(background,(0,-300))
         
         keys = key.get_pressed()
         if keys[K_LEFT]:
@@ -96,9 +98,9 @@ def game(level):
         else:
             rick.ySpeed += GRAVITY
             
-        
+        screen.blit(background,(0,-300))
         ###########################
-        screen.fill((0, 0, 0))
+        
         #Hitbox    
         draw.circle(screen, (0,0,0), (int(rick.xPos), int(rick.yPos)), 22, 1)
 
@@ -126,9 +128,11 @@ while page != "quit":
     if page == "game":
         page = game(level)
         if page == "game":
-            level += 1
-
-    
-
+            if level < 6:
+                level += 1
+            else:
+                print("good job bud")
+                page = "quit"
+                break
 
 quit()
